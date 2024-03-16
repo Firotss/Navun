@@ -11,54 +11,31 @@ using System.Threading;
 using System.Net.NetworkInformation;
 using System.Linq;
 using M2MqttUnity;
+using System;
 
 public class Server : MonoBehaviour
 {
-    [SerializeField] private Button hostBtn;
-    [SerializeField] private Button connectBtn;
-    [SerializeField] private TMP_Text ipField;
-    [SerializeField] private TMP_Text ipField2;
-    [SerializeField] private TMP_InputField ipInput;
+    public static int MaxClients { get; private set; }
+    public static Dictionary<int, ServerClient> serverClients = new Dictionary<int, ServerClient>();
+    private static TcpListener tcpListener;
+    public static string IP { get; private set; }
+    public static int Port {get;private set;}
 
-    private List<TcpClient> tcpClients;
-    private TcpListener tcpListener;
-    private bool isHost;
-
-    private string data = "";
-
-    void Start()
+    public static void Start(int maxClients, int port)
     {
-        ipField.text = "";
-        hostBtn.onClick.AddListener(Host);
-        connectBtn.onClick.AddListener(Connect);
+        MaxClients = maxClients;
+        Port = port;
+
+        InitializeData();
+
+        tcpListener = new TcpListener(IPAddress.Any, 6969);
+        tcpListener.Start();
+
+        new Thread(() => { AcceptClients(); }).Start();
     }
 
-    void Update()
+    private static void InitializeData()
     {
-        ipField.text = data;
-    }
-
-    public void Connect()
-    {
-        TcpClient cl = new TcpClient();
-        cl.Connect(ipInput.text, 6969);
-
-        hostBtn.gameObject.SetActive(false);
-        connectBtn.gameObject.SetActive(false);
-        ipInput.gameObject.SetActive(false);
-        ipField.gameObject.SetActive(false);
-    }
-
-    public void Host()
-    {
-        hostBtn.gameObject.SetActive(false);
-        connectBtn.gameObject.SetActive(false);
-        ipInput.gameObject.SetActive(false);
-
-        isHost = true;
-
-        string ip = null;
-
         IPAddress[] IPS = Dns.GetHostAddresses(Dns.GetHostName());
 
         foreach (IPAddress i in IPS)
@@ -67,30 +44,32 @@ public class Server : MonoBehaviour
             {
 
                 Debug.Log("IP address: " + i);
-                ip = i.ToString();
+                IP = i.ToString();
             }
         }
 
-        ipField2.text = ip;
-
-        tcpListener = new TcpListener(IPAddress.Any, 6969);
-        tcpListener.Start();
-
-        new Thread (() => { AcceptClients(); }).Start();
+        for (int i = 1; i <= MaxClients; i++)
+        {
+            serverClients.Add(i, new ServerClient(i));
+        }
     }
 
-    private void AcceptClients()
+    private static void AcceptClients()
     {
-        Debug.Log("Accepting");
-        TcpClient tcpClient = tcpListener.AcceptTcpClient();
-        tcpClients.Add(tcpClient);
+        TcpClient client = tcpListener.AcceptTcpClient();
+        Debug.Log("Connection from " + client.Client.RemoteEndPoint);
 
-        data += $"\nConnected, local:{tcpClient.Client.LocalEndPoint}, remote:{tcpClient.Client.RemoteEndPoint}";
-        Debug.Log("\nConnected, local:{tcpClient.Client.LocalEndPoint}, remote:{tcpClient.Client.RemoteEndPoint}");
-    }
+        Task.Run(() => { AcceptClients(); });
 
-    void OnDestroy()
-    {
+        for (int i = 1; i <= MaxClients; i++)
+        {
+            if (serverClients[i].tcp.socket == null)
+            {
+                serverClients[i].tcp.Connect(client);
+                return;
+            }
+        }
 
+        Debug.Log("Full");
     }
 }
