@@ -17,11 +17,14 @@ public class Server : MonoBehaviour
     [SerializeField] private Button hostBtn;
     [SerializeField] private Button connectBtn;
     [SerializeField] private TMP_Text ipField;
+    [SerializeField] private TMP_Text ipField2;
     [SerializeField] private TMP_InputField ipInput;
 
     private List<TcpClient> tcpClients;
     private TcpListener tcpListener;
     private bool isHost;
+
+    private string data = "";
 
     void Start()
     {
@@ -32,13 +35,18 @@ public class Server : MonoBehaviour
 
     void Update()
     {
-        
+        ipField.text = data;
     }
 
     public void Connect()
     {
         TcpClient cl = new TcpClient();
-        cl.Connect(ipField.GetComponent<TMP_InputField>().text, 6969);
+        cl.Connect(ipInput.text, 6969);
+
+        hostBtn.gameObject.SetActive(false);
+        connectBtn.gameObject.SetActive(false);
+        ipInput.gameObject.SetActive(false);
+        ipField.gameObject.SetActive(false);
     }
 
     public void Host()
@@ -63,20 +71,22 @@ public class Server : MonoBehaviour
             }
         }
 
-        ipField.text = ip;
+        ipField2.text = ip;
 
         tcpListener = new TcpListener(IPAddress.Any, 6969);
         tcpListener.Start();
 
-        Task.Run(() => { AcceptClients(); });
+        new Thread (() => { AcceptClients(); }).Start();
     }
 
     private void AcceptClients()
     {
+        Debug.Log("Accepting");
         TcpClient tcpClient = tcpListener.AcceptTcpClient();
         tcpClients.Add(tcpClient);
 
-        ipField.text += $"\nConnected, local:{tcpClient.Client.LocalEndPoint}, remote:{tcpClient.Client.RemoteEndPoint}";
+        data += $"\nConnected, local:{tcpClient.Client.LocalEndPoint}, remote:{tcpClient.Client.RemoteEndPoint}";
+        Debug.Log("\nConnected, local:{tcpClient.Client.LocalEndPoint}, remote:{tcpClient.Client.RemoteEndPoint}");
     }
 
     void OnDestroy()
