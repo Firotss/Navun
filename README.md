@@ -1,6 +1,6 @@
 # NAVigation Universal Network
 
-# Project Description
+## Project Description
 
 This repository contains two parts of the project: **mobile application** and **server**. The mobile application allows users to create groups for tracking coordinates via GPS and hotspot. Viewing the location of group members on an interactive map. The server part handles requests over the MQTT protocol, saves the history of movements during a session, and provides this information for use by rescue groups in case of loss of connection.
 
