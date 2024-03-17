@@ -105,6 +105,8 @@ public class ServerClient
             {
                 case 0: ThreadManager.RunOnMainThread(() => {ServerHandle.Welcome(json);});
                 break;
+                case 1: ThreadManager.RunOnMainThread(() => {ServerHandle.Location(json);});
+                break;
             }
         }
     }

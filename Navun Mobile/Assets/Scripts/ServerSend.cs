@@ -32,4 +32,28 @@ public class ServerSend
 
         SendTCPData(toClient, packet);
     }
+
+    // List of locations
+    public static void Locations()
+    {
+        
+    }
+
+    public static void Lost(int id)
+    {
+        Packet.Lost lost;
+        lost.id = id;
+
+        string json = JsonUtility.ToJson(lost);
+
+        Packet packet = new Packet(2, json);
+
+        SendToAllClients(packet);
+    }
+
+    /*
+    0 - Connect
+    1 - Locations
+    2 - Lost
+    */
 }

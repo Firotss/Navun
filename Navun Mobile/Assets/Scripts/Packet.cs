@@ -29,6 +29,11 @@ public class Packet
         public float longitude;
     }
 
+    public struct Lost
+    {
+        public int id;
+    }
+
     private byte[] buffer;
 
     public Packet(byte[] buffer)

@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class DataManager : MonoBehaviour
@@ -7,11 +8,6 @@ public class DataManager : MonoBehaviour
     void Start()
     {
         StartCoroutine(LocationCoroutine());
-    }
-
-    void Update()
-    {
-        
     }
 
     public IEnumerator LocationCoroutine()
@@ -89,9 +85,12 @@ public class DataManager : MonoBehaviour
                 + UnityEngine.Input.location.lastData.horizontalAccuracy + " "
                 + UnityEngine.Input.location.lastData.timestamp);
 
-            var _latitude = UnityEngine.Input.location.lastData.latitude;
-            var _longitude = UnityEngine.Input.location.lastData.longitude;
+            float _latitude = UnityEngine.Input.location.lastData.latitude;
+            float _longitude = UnityEngine.Input.location.lastData.longitude;
             // TODO success do something with location
+            if (UIManager.client != null)
+                if (UIManager.client.myId != 0)
+                    ClientSend.Location(_latitude, _longitude);
         }
 
         yield return new WaitForSeconds(15.0f);

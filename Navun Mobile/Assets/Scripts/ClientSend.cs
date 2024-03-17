@@ -26,4 +26,18 @@ public class ClientSend
 
         SendTCPData(packet);
     }
+
+    public static void Location(float latitude, float longitude)
+    {
+        Packet.LocationData locationData;
+        locationData.id = UIManager.client.myId;
+        locationData.latitude = latitude;
+        locationData.longitude = longitude;
+
+        string json = JsonUtility.ToJson(locationData);
+
+        Packet packet = new Packet(1, json);
+
+        SendTCPData(packet);
+    }
 }

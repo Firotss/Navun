@@ -16,6 +16,16 @@ public class ServerHandle
 
         Debug.Log(clientWelcome.message);
 
-        //Do sthg
+        // Create a new pinpoint
+    }
+
+    public static void Location(string json)
+    {
+        Packet.LocationData locationData = JsonUtility.FromJson<Packet.LocationData>(json);
+
+        Debug.Log(locationData.id + ", " + locationData.longitude + ", " + locationData.latitude);
+
+        UIManager.messageField2.text += 
+        locationData.id + ", " + locationData.longitude + ", " + locationData.latitude + "\n";
     }
 }
