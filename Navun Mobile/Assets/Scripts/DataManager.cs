@@ -39,7 +39,7 @@ public class DataManager : MonoBehaviour
         }
 #endif
         // Start service before querying location
-        UnityEngine.Input.location.Start(500f, 500f);
+        UnityEngine.Input.location.Start(1.0f, 1.0f);
 
         // Wait until service initializes
         int maxWait = 15;
@@ -76,14 +76,14 @@ public class DataManager : MonoBehaviour
         }
         else
         {
-            Debug.LogFormat("Location service live. status {0}", UnityEngine.Input.location.status);
-            // Access granted and location value could be retrieved
-            Debug.LogFormat("Location: "
-                + UnityEngine.Input.location.lastData.latitude + " "
-                + UnityEngine.Input.location.lastData.longitude + " "
-                + UnityEngine.Input.location.lastData.altitude + " "
-                + UnityEngine.Input.location.lastData.horizontalAccuracy + " "
-                + UnityEngine.Input.location.lastData.timestamp);
+            // Debug.LogFormat("Location service live. status {0}", UnityEngine.Input.location.status);
+            // // Access granted and location value could be retrieved
+            // Debug.LogFormat("Location: "
+            //     + UnityEngine.Input.location.lastData.latitude + " "
+            //     + UnityEngine.Input.location.lastData.longitude + " "
+            //     + UnityEngine.Input.location.lastData.altitude + " "
+            //     + UnityEngine.Input.location.lastData.horizontalAccuracy + " "
+            //     + UnityEngine.Input.location.lastData.timestamp);
 
             float _latitude = UnityEngine.Input.location.lastData.latitude;
             float _longitude = UnityEngine.Input.location.lastData.longitude;
@@ -93,7 +93,7 @@ public class DataManager : MonoBehaviour
                     ClientSend.Location(_latitude, _longitude);
         }
 
-        yield return new WaitForSeconds(15.0f);
+        yield return new WaitForSeconds(5.0f);
 
         StartCoroutine(LocationCoroutine());
     }
