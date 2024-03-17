@@ -17,6 +17,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] public static TMP_Text messageField1;
     [SerializeField] public static TMP_Text messageField2;
     public static Client client;
+    public static bool isHost;
 
     void Start()
     {
@@ -45,6 +46,8 @@ public class UIManager : MonoBehaviour
         ipInput.gameObject.SetActive(false);
 
         Server.Start(3, 6969);
+        
+        isHost = true;
 
         ipField.text = Server.IP;
     }

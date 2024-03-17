@@ -5,21 +5,15 @@ using UnityEngine;
 
 public class DataManager : MonoBehaviour
 {
-    void Start()
+    void Awake()
     {
+        Application.runInBackground = true;
         StartCoroutine(LocationCoroutine());
     }
 
     public IEnumerator LocationCoroutine()
     {
-        // Uncomment if you want to test with Unity Remote
-        /*#if UNITY_EDITOR
-                yield return new WaitWhile(() => !UnityEditor.EditorApplication.isRemoteConnected);
-                yield return new WaitForSecondsRealtime(5f);
-        #endif*/
-#if UNITY_EDITOR
-        // No permission handling needed in Editor
-#elif UNITY_ANDROID
+#if UNITY_ANDROID
         if (!UnityEngine.Android.Permission.HasUserAuthorizedPermission(UnityEngine.Android.Permission.CoarseLocation)) {
             UnityEngine.Android.Permission.RequestUserPermission(UnityEngine.Android.Permission.CoarseLocation);
         }
@@ -90,10 +84,16 @@ public class DataManager : MonoBehaviour
             // TODO success do something with location
             if (UIManager.client != null)
                 if (UIManager.client.myId != 0)
+                {
                     ClientSend.Location(_latitude, _longitude);
+                }
+            if (UIManager.isHost == true)
+            {
+                ServerSend.Location(_latitude, _longitude);
+            }
         }
 
-        yield return new WaitForSeconds(5.0f);
+        yield return new WaitForSecondsRealtime(5.0f);
 
         StartCoroutine(LocationCoroutine());
     }

@@ -108,12 +108,14 @@ public class Client
         int actionId = (int)(json[0] - '0');
         json = json.Remove(0, 1);
 
-        Debug.Log(actionId);
+        Debug.Log(json);
 
         switch (actionId)
         {
             case 0: ThreadManager.RunOnMainThread(() => {ClientHandle.Welcome(json);});
             break;
+            case 1: ThreadManager.RunOnMainThread(() => {ClientHandle.Location(json);});
+                break;
         }
     }
 }

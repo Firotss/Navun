@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 
@@ -34,9 +36,35 @@ public class ServerSend
     }
 
     // List of locations
-    public static void Locations()
+    public static void Location(float latitude, float longitude)
     {
-        
+        Packet.LocationData ld;
+        ld.id = 0;
+        ld.latitude = latitude;
+        ld.longitude = longitude;
+
+        string json = JsonUtility.ToJson(ld);
+
+        Packet packet = new Packet(1, json);
+
+        SendToAllClients(packet);
+
+        for (int i = 1; i <= Server.MaxClients; i++)
+        {
+            if (Server.serverClients[i].tcp.socket != null)
+            {
+                Packet.LocationData locationData;
+                locationData.id = Server.serverClients[i].id;
+                locationData.latitude = Server.serverClients[i].latitude;
+                locationData.longitude = Server.serverClients[i].longitude;
+
+                json = JsonUtility.ToJson(locationData);
+                Debug.Log(json);
+                packet = new Packet(1, json);
+
+                SendToAllClients(packet);
+            }
+        }
     }
 
     public static void Lost(int id)

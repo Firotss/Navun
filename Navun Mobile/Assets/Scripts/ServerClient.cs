@@ -20,6 +20,10 @@ public class ServerClient
     public int id;
     public TCP tcp;
 
+    // this will get moved to separate class
+    public float latitude;
+    public float longitude;
+
     public ServerClient(int clientId)
     {
         id = clientId;
@@ -79,7 +83,6 @@ public class ServerClient
                     return;
                 }
 
-                Debug.Log("Handle");
                 HandleData(receiveBuffer);
             }
             catch
@@ -87,7 +90,6 @@ public class ServerClient
                 Debug.Log("Disconnect");
             }
 
-            Debug.Log("Received");
             ReceiveDataTCP();
             });
         }

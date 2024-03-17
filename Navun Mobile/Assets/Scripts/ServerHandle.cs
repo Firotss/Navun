@@ -23,6 +23,9 @@ public class ServerHandle
     {
         Packet.LocationData locationData = JsonUtility.FromJson<Packet.LocationData>(json);
 
+        Server.serverClients[locationData.id].latitude = locationData.latitude;
+        Server.serverClients[locationData.id].longitude = locationData.longitude;
+
         Debug.Log(locationData.id + ", " + locationData.longitude + ", " + locationData.latitude);
 
         UIManager.messageField2.text += 

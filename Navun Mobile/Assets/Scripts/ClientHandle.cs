@@ -19,4 +19,14 @@ public class ClientHandle
 
         ClientSend.Welcome("Hello there");
     }
+
+    public static void Location(string json)
+    {
+        Packet.LocationData locationData = JsonUtility.FromJson<Packet.LocationData>(json);
+
+        Debug.Log(locationData.id);
+
+        UIManager.messageField2.text += 
+        locationData.id + ", " + locationData.longitude + ", " + locationData.latitude + "\n";
+    }
 }
