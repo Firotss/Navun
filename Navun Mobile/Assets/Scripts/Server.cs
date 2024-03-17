@@ -31,7 +31,7 @@ public class Server : MonoBehaviour
         tcpListener = new TcpListener(IPAddress.Any, 6969);
         tcpListener.Start();
 
-        new Thread(() => { AcceptClients(); }).Start();
+        Task.Run(() => { AcceptClients(); });
     }
 
     private static void InitializeData()
@@ -42,7 +42,6 @@ public class Server : MonoBehaviour
         {
             if (i.AddressFamily == AddressFamily.InterNetwork)
             {
-
                 Debug.Log("IP address: " + i);
                 IP = i.ToString();
             }
@@ -53,11 +52,12 @@ public class Server : MonoBehaviour
             serverClients.Add(i, new ServerClient(i));
         }
     }
-
+    
     private static void AcceptClients()
     {
         TcpClient client = tcpListener.AcceptTcpClient();
         Debug.Log("Connection from " + client.Client.RemoteEndPoint);
+        UIManager.messageField1.text += "Connection from " + client.Client.RemoteEndPoint + "\n";
 
         Task.Run(() => { AcceptClients(); });
 
@@ -71,5 +71,6 @@ public class Server : MonoBehaviour
         }
 
         Debug.Log("Full");
+        UIManager.messageField1.text += "Server full \n";
     }
 }

@@ -6,6 +6,7 @@ using System.Net.Sockets;
 using UnityEngine.UI;
 using TMPro;
 using System.Threading.Tasks;
+using System.Linq;
 
 public class UIManager : MonoBehaviour
 {
@@ -13,10 +14,15 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Button connectBtn;
     [SerializeField] private TMP_Text ipField;
     [SerializeField] private TMP_InputField ipInput;
+    [SerializeField] public static TMP_Text messageField1;
+    [SerializeField] public static TMP_Text messageField2;
     Client client;
 
     void Start()
     {
+        messageField1 = FindObjectsOfType<TMP_Text>().Where(o => o.transform.name == "MessageField1").First();
+        messageField2 = FindObjectsOfType<TMP_Text>().Where(o => o.transform.name == "MessageField2").First();
+
         hostBtn.onClick.AddListener(Host);
         connectBtn.onClick.AddListener(Connect);
     }

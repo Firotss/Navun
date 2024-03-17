@@ -6,6 +6,8 @@ using System.Net.Sockets;
 using UnityEngine.UI;
 using TMPro;
 using System.Threading.Tasks;
+using System;
+using System.Text;
 
 public class Client
 {
@@ -38,8 +40,6 @@ public class Client
                 SendBufferSize = dataBufferSize
             };
 
-            receiveBuffer = new byte[dataBufferSize];
-
             try
             {
                 socket.Connect(ip, port);
@@ -53,16 +53,47 @@ public class Client
 
             stream = socket.GetStream();
 
-            // try
-            // {
-            //     stream.Read(receiveBuffer, 0, dataBufferSize);
-                
-            //     Debug.Log(System.Text.Encoding.UTF8.GetString(receiveBuffer));
-            // }
-            // catch
-            // {
-            //     Debug.Log("Could not establish connection");
-            // }
+            Task.Run(() => {SendDataTCP();}); 
+            Task.Run(() => {ReceiveDataTCP();}); 
+        }
+
+        public void SendDataTCP(/*Packet packet*/)
+        {
+            byte[] sendBuffer = Encoding.UTF8.GetBytes($"Message received from {socket.Client.LocalEndPoint}");
+
+            try
+            {
+                stream.Write(sendBuffer, 0, sendBuffer.Length);
+            }
+            catch
+            {
+                Debug.Log("Disconnect");
+            }
+        }
+
+        public void ReceiveDataTCP()
+        {
+            receiveBuffer = new byte[dataBufferSize];
+
+            try
+            {
+                if (stream.Read(receiveBuffer, 0, dataBufferSize) <= 0)
+                {
+                    Debug.Log("Disconnected no data received");
+                    UIManager.messageField2.text += "Disconnected no data received\n";
+                    return;
+                }
+
+                string message = Encoding.UTF8.GetString(receiveBuffer);
+                message = message.Trim('\0');
+
+                Debug.Log(message);
+                ThreadManager.RunOnMainThread(()=>{UIManager.messageField2.text += $"{message}\n";});
+            }
+            catch
+            {
+                 Debug.Log("Disconnect");
+            }
         }
     }
 }
