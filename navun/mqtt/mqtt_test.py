@@ -29,7 +29,9 @@ def on_message(mqtt_client, userdata, msg):
             except Group.DoesNotExist:
                 group = Group.objects.create()
                 topic = "django/mqtt"
-                msg = f"id: {group.id}"
+                msg = """{
+    "type": "feedback", 
+    "id": """+str(group.id)+"\n}"
             
                 rc, mid = mqtt_client.publish(topic, msg, qos=2)
 
@@ -54,10 +56,13 @@ def on_message(mqtt_client, userdata, msg):
                     for location in locations:
                         print(f"Location: {location}")
         elif(json_data["type"] == "delete"):
-            print(json_data["id"])
+            group = Group.objects.get(id=json_data["id"]).delete()
+            participant = Participant.objects.filter(group=group).delete()
+            Location.objects.filter(participant=participant).delete()
+
     except Exception as e:
         print(e)
-        
+
 client = mqtt.Client()
 client.on_connect = on_connect
 client.on_message = on_message
