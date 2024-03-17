@@ -36,4 +36,4 @@ If you have found a bug or would like to suggest an improvement, please create a
 
 ## License
 
-This project is licensed under the [CC BY](LICENSE).
+This project is licensed under the [MIT License](LICENSE).
