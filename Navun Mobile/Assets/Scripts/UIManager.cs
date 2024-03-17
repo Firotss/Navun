@@ -16,7 +16,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private TMP_InputField ipInput;
     [SerializeField] public static TMP_Text messageField1;
     [SerializeField] public static TMP_Text messageField2;
-    Client client;
+    public static Client client;
 
     void Start()
     {

@@ -1,24 +1,35 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using System.Net;
-using System.Net.Sockets;
-using UnityEngine.UI;
-using System.Threading.Tasks;
-using System;
-using System.Text;
+
 
 public class ServerSend
 {
-    public static void SendToAllClients(Packet packet)
+    private static void SendTCPData(int toClient, Packet packet)
+    {
+        Server.serverClients[toClient].tcp.SendDataTCP(packet);
+    }
+
+    private static void SendToAllClients(Packet packet)
     {
         for (int i = 1; i <= Server.MaxClients; i++)
         {
             if (Server.serverClients[i].tcp.socket != null)
             {
-                //Server.serverClients[i].tcp.SendDataTCP(packet);
+                Server.serverClients[i].tcp.SendDataTCP(packet);
                 Debug.Log("Send packet");
             }
         }
+    }
+
+    public static void Welcome(int toClient, string msg)
+    {
+        Packet.ServerWelcome serverWelcome;
+        serverWelcome.id = toClient;
+        serverWelcome.message = msg;
+
+        string json = JsonUtility.ToJson(serverWelcome);
+
+        Packet packet = new Packet(0, json);
+
+        SendTCPData(toClient, packet);
     }
 }

@@ -46,13 +46,14 @@ public class ServerClient
 
             stream = socket.GetStream();
 
-            Task.Run(() => { SendDataTCP(); });
-            Task.Run(() => { ReceiveDataTCP(); });
+            ReceiveDataTCP();
+            ServerSend.Welcome(id, "Welcome to the server!");
         }
 
-        public void SendDataTCP()
+        public void SendDataTCP(Packet packet)
         {
-            byte[] sendBuffer = Encoding.UTF8.GetBytes($"Id = {id}");
+            Task.Run(() => { 
+            byte[] sendBuffer = packet.GetBuffer();
 
             try
             {
@@ -61,34 +62,49 @@ public class ServerClient
             catch
             {
                 Debug.Log("Disconnect");
-                UIManager.messageField2.text += "Disconnect\n";
             }
+            });
         }
 
         public void ReceiveDataTCP()
         {
+            Task.Run(() => { 
             receiveBuffer = new byte[dataBufferSize];
 
             try
             {
-
                 if (stream.Read(receiveBuffer, 0, dataBufferSize) <= 0)
                 {
                     Debug.Log("Disconnected no data received");
                     return;
                 }
 
-                string message = Encoding.UTF8.GetString(receiveBuffer);
-                message = message.Trim('\0');
-
-                Debug.Log(message);
-
-                ThreadManager.RunOnMainThread(() => { UIManager.messageField2.text += $"{message}\n"; });
+                Debug.Log("Handle");
+                HandleData(receiveBuffer);
             }
             catch
             {
                 Debug.Log("Disconnect");
-                UIManager.messageField2.text += "Disconnect\n";
+            }
+
+            Debug.Log("Received");
+            ReceiveDataTCP();
+            });
+        }
+
+        private static void HandleData(byte[] buffer)
+        {
+            Packet packet = new Packet(buffer);
+            string json = packet.Deserialize();
+
+            int actionId = (int)(json[0] - '0');
+            json = json.Remove(0, 1);
+            Debug.Log(json);
+
+            switch (actionId)
+            {
+                case 0: ThreadManager.RunOnMainThread(() => {ServerHandle.Welcome(json);});
+                break;
             }
         }
     }

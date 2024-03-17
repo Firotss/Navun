@@ -53,47 +53,67 @@ public class Client
 
             stream = socket.GetStream();
 
-            Task.Run(() => {SendDataTCP();}); 
-            Task.Run(() => {ReceiveDataTCP();}); 
+            ReceiveDataTCP();
         }
 
-        public void SendDataTCP(/*Packet packet*/)
+        public void SendDataTCP(Packet packet)
         {
-            byte[] sendBuffer = Encoding.UTF8.GetBytes($"Message received from {socket.Client.LocalEndPoint}");
+            Task.Run(() =>
+            {
+                byte[] sendBuffer = packet.GetBuffer();
 
-            try
-            {
-                stream.Write(sendBuffer, 0, sendBuffer.Length);
-            }
-            catch
-            {
-                Debug.Log("Disconnect");
-            }
+                try
+                {
+                    stream.Write(sendBuffer, 0, sendBuffer.Length);
+                }
+                catch
+                {
+                    Debug.Log("Disconnect");
+                }
+            });
         }
 
         public void ReceiveDataTCP()
         {
-            receiveBuffer = new byte[dataBufferSize];
-
-            try
+            Task.Run(() =>
             {
-                if (stream.Read(receiveBuffer, 0, dataBufferSize) <= 0)
+                receiveBuffer = new byte[dataBufferSize];
+
+                try
                 {
-                    Debug.Log("Disconnected no data received");
-                    UIManager.messageField2.text += "Disconnected no data received\n";
-                    return;
+                    if (stream.Read(receiveBuffer, 0, dataBufferSize) <= 0)
+                    {
+                        Debug.Log("Disconnected no data received");
+                        UIManager.messageField2.text += "Disconnected no data received\n";
+                        return;
+                    }
+
+                    HandleData(receiveBuffer);
+                }
+                catch
+                {
+                    Debug.Log("Disconnect");
                 }
 
-                string message = Encoding.UTF8.GetString(receiveBuffer);
-                message = message.Trim('\0');
+                ReceiveDataTCP();
+            });
+        }
+    }
 
-                Debug.Log(message);
-                ThreadManager.RunOnMainThread(()=>{UIManager.messageField2.text += $"{message}\n";});
-            }
-            catch
-            {
-                 Debug.Log("Disconnect");
-            }
+    private static void HandleData(byte[] buffer)
+    {
+        Packet packet = new Packet(buffer);
+        string json = packet.Deserialize();
+
+        int actionId = (int)(json[0] - '0');
+        json = json.Remove(0, 1);
+
+        Debug.Log(actionId);
+
+        switch (actionId)
+        {
+            case 0: ThreadManager.RunOnMainThread(() => {ClientHandle.Welcome(json);});
+            break;
         }
     }
 }
